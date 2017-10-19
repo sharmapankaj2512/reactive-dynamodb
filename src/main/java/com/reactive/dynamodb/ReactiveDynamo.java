@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import static com.reactive.dynamodb.GetItemRequestExtension.*;
 
 class ReactiveDynamo {
     private final AmazonDynamoDBAsync db;
@@ -27,7 +28,7 @@ class ReactiveDynamo {
     }
 
     Observable<Map<String, Object>> itemByHashKey(DynamoDbTable table) {
-        return Observable.from(db.getItemAsync(GetItemRequestExtension.from(table)))
+        return Observable.from(db.getItemAsync(from(table)))
                 .map(GetItemResult::getItem)
                 .map(InternalUtils::toSimpleMapValue);
     }
