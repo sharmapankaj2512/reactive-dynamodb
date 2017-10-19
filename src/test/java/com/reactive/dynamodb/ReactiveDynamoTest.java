@@ -35,11 +35,11 @@ public class ReactiveDynamoTest {
                 .withEndpointConfiguration(config)
                 .build();
 
-        db.createTable(testTableSchema());
-        db.putItem(testTableItem());
-
         db.createTable(testTable1Schema());
         db.putItem(testTable1Item());
+
+        db.createTable(testTable2Schema());
+        db.putItem(testTableItem());
     }
 
     @AfterClass
@@ -57,15 +57,15 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(Arrays.asList("testTable", "testTable1"));
+        subscriber.assertValue(Arrays.asList("testTable1", "testTable2"));
     }
 
     @Test
     public void testGetItemByHashKey() throws Exception {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
-        DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_HASH_KEY, "testing");
-        DynamoDbTable table = new DynamoDbTable(TABLE_WITH_HASH_KEY, hashKey);
+        DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_2_HASH_KEY, "testing");
+        DynamoDbTable table = new DynamoDbTable(TEST_TABLE_2_NAME, hashKey);
         Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
 
         observable.subscribe(System.out::print);
