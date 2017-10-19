@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import static com.reactive.dynamodb.DynamoDbTable.builder;
+import static com.reactive.dynamodb.TestData.*;
 import static java.util.Collections.singletonList;
 
 public class ReactiveDynamoTest {
@@ -34,8 +36,8 @@ public class ReactiveDynamoTest {
                 .withEndpointConfiguration(config)
                 .build();
 
-        db.createTable(TestData.testTableSchema());
-        db.putItem(TestData.testTableItem());
+        db.createTable(testTableSchema());
+        db.putItem(testTableItem());
     }
 
     @AfterClass
@@ -61,8 +63,9 @@ public class ReactiveDynamoTest {
     public void testGetItemByHashKey() throws Exception {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
-        Observable<Map<String, Object>> observable = reactiveDynamo.itemByHashKey(
-                TestData.TEST_TABLE_NAME, TestData.TEST_TABLE_HASH_KEY, "testing");
+        DynamoDbHashKey hashKey = DynamoDbHashKey.builder().name(TEST_TABLE_HASH_KEY).value("testing").build();
+        DynamoDbTable table = builder().name(TEST_TABLE_NAME).dynamoDbHashKey(hashKey).build();
+        Observable<Map<String, Object>> observable = reactiveDynamo.itemByHashKey(table);
 
         observable.subscribe(System.out::print);
         observable.subscribe(subscriber);

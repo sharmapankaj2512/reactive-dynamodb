@@ -3,11 +3,8 @@ package com.reactive.dynamodb;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.internal.InternalUtils;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import com.google.common.collect.ImmutableMap;
 import rx.Observable;
 
 import java.util.List;
@@ -29,11 +26,8 @@ class ReactiveDynamo {
                 .map(ListTablesResult::getTableNames);
     }
 
-    Observable<Map<String, Object>> itemByHashKey(String tableName, String hashKeyName, String hashKeyValue) {
-        ImmutableMap<String, AttributeValue> map = ImmutableMap.of(hashKeyName, new AttributeValue(hashKeyValue));
-        GetItemRequest getItemRequest = new GetItemRequest().withTableName(tableName).withKey(map);
-
-        return Observable.from(db.getItemAsync(getItemRequest))
+    Observable<Map<String, Object>> itemByHashKey(DynamoDbTable table) {
+        return Observable.from(db.getItemAsync(GetItemRequestExtension.from(table)))
                 .map(GetItemResult::getItem)
                 .map(InternalUtils::toSimpleMapValue);
     }
