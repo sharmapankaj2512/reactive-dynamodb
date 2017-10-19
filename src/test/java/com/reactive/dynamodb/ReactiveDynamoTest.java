@@ -55,7 +55,6 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValueCount(1);
         subscriber.assertValue(singletonList("testTable"));
     }
 
@@ -72,7 +71,6 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValueCount(1);
         subscriber.assertValue(ImmutableMap.of("field1", "testing"));
     }
 }
