@@ -30,17 +30,13 @@ class ReactiveDynamo {
     Observable<Map<String, Object>> item(DynamoDbTable table) {
         return Observable.from(db.getItemAsync(from(table)))
                 .map(GetItemResult::getItem)
-                .map(InternalUtils::toSimpleMapValue);
+                .map(this::toSimpleMap);
     }
 
     Observable<Map<String, Object>> add(String tableName, Map<String, Object> data) {
-        PutItemRequest putItemRequest = new PutItemRequest(tableName, InternalUtils.fromSimpleMap(data))
-                .withReturnValues(ReturnValue.ALL_OLD);
-
-
-        return Observable.from(db.putItemAsync(putItemRequest))
+        return Observable.from(db.putItemAsync(PutItemRequestExtension.from(tableName, data)))
                 .map(PutItemResult::getAttributes)
-                .map(item -> toSimpleMap(item));
+                .map(this::toSimpleMap);
     }
 
     private Map<String, Object> toSimpleMap(Map<String, AttributeValue> item) {
