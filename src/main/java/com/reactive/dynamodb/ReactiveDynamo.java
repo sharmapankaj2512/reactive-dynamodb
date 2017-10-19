@@ -3,15 +3,15 @@ package com.reactive.dynamodb;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.internal.InternalUtils;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
+import com.amazonaws.services.dynamodbv2.model.*;
 import rx.Observable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import static com.reactive.dynamodb.GetItemRequestExtension.*;
+import static com.reactive.dynamodb.GetItemRequestExtension.from;
 
 class ReactiveDynamo {
     private final AmazonDynamoDBAsync db;
@@ -31,5 +31,19 @@ class ReactiveDynamo {
         return Observable.from(db.getItemAsync(from(table)))
                 .map(GetItemResult::getItem)
                 .map(InternalUtils::toSimpleMapValue);
+    }
+
+    Observable<Map<String, Object>> add(String tableName, Map<String, Object> data) {
+        PutItemRequest putItemRequest = new PutItemRequest(tableName, InternalUtils.fromSimpleMap(data))
+                .withReturnValues(ReturnValue.ALL_OLD);
+
+
+        return Observable.from(db.putItemAsync(putItemRequest))
+                .map(PutItemResult::getAttributes)
+                .map(item -> toSimpleMap(item));
+    }
+
+    private Map<String, Object> toSimpleMap(Map<String, AttributeValue> item) {
+        return item == null ? Collections.emptyMap() : InternalUtils.toSimpleMapValue(item);
     }
 }

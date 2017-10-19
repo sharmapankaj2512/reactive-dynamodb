@@ -40,6 +40,8 @@ public class ReactiveDynamoTest {
 
         db.createTable(testTable2Schema());
         db.putItem(testTableItem());
+
+        db.createTable(testTable3Schema());
     }
 
     @AfterClass
@@ -57,7 +59,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(Arrays.asList("testTable1", "testTable2"));
+        subscriber.assertValue(Arrays.asList("testTable1", "testTable2", "testTable3"));
     }
 
     @Test
@@ -80,9 +82,9 @@ public class ReactiveDynamoTest {
     public void testGetItemByCompositeKey() throws Exception {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
-        DynamoDbHashKey hashKey = new DynamoDbHashKey(TestData.TEST_TABLE_1_HASH_KEY, "testing");
-        DynamoDbHashKey rangeKey = new DynamoDbHashKey(TestData.TEST_TABLE_1_RANGE_KEY, "testing");
-        DynamoDbTable table = new DynamoDbTable(TestData.TEST_TABLE_1_NAME, hashKey, rangeKey);
+        DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_1_HASH_KEY, "testing");
+        DynamoDbHashKey rangeKey = new DynamoDbHashKey(TEST_TABLE_1_RANGE_KEY, "testing");
+        DynamoDbTable table = new DynamoDbTable(TEST_TABLE_1_NAME, hashKey, rangeKey);
         Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
 
         observable.subscribe(System.out::print);
@@ -91,5 +93,20 @@ public class ReactiveDynamoTest {
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
         subscriber.assertValue(ImmutableMap.of("field1", "testing", "field2", "testing"));
+    }
+
+    @Test
+    public void testAddItemByHashKey() {
+        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
+        TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
+
+        ImmutableMap<String, Object> data = ImmutableMap.of("field1", "testing");
+        Observable<Map<String, Object>> observable = reactiveDynamo.add(TestData.TEST_TABLE_3_NAME, data);
+        observable.subscribe(subscriber);
+        observable.subscribe(System.out::println);
+
+        subscriber.assertCompleted();
+        subscriber.assertNoErrors();
+        subscriber.assertValue(ImmutableMap.of());
     }
 }

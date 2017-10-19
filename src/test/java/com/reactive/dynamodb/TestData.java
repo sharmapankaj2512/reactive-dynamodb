@@ -12,6 +12,8 @@ public class TestData {
     public static final String TEST_TABLE_2_NAME = "testTable2";
     public static final String TEST_TABLE_2_HASH_KEY = "field1";
 
+    public static String TEST_TABLE_3_NAME = "testTable3";
+
     public static CreateTableRequest testTable2Schema() {
         return new CreateTableRequest()
                 .withTableName(TEST_TABLE_2_NAME)
@@ -39,5 +41,13 @@ public class TestData {
                         new AttributeDefinition(TEST_TABLE_1_RANGE_KEY, ScalarAttributeType.S))
                 .withKeySchema(new KeySchemaElement(TEST_TABLE_1_HASH_KEY, KeyType.HASH),
                         new KeySchemaElement(TEST_TABLE_1_RANGE_KEY, KeyType.RANGE));
+    }
+
+    public static CreateTableRequest testTable3Schema() {
+        return new CreateTableRequest()
+                .withTableName(TEST_TABLE_3_NAME)
+                .withProvisionedThroughput(new ProvisionedThroughput(10L, 10L))
+                .withAttributeDefinitions(new AttributeDefinition(TEST_TABLE_2_HASH_KEY, ScalarAttributeType.S))
+                .withKeySchema(new KeySchemaElement(TEST_TABLE_2_HASH_KEY, KeyType.HASH));
     }
 }
