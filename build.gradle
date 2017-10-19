@@ -22,4 +22,8 @@ String localDynamoDbNativeLibs = "sqlite4java"
 
 test {
     systemProperty "sqlite4java.library.path", localDynamoDbNativeLibs
+    testLogging {
+        events "failed"
+        exceptionFormat "short"
+    }
 }
