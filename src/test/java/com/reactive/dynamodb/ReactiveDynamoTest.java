@@ -11,12 +11,12 @@ import org.junit.Test;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import static com.reactive.dynamodb.TestData.*;
-import static java.util.Collections.singletonList;
 
 public class ReactiveDynamoTest {
     private static final String region = "foobar";
@@ -37,6 +37,9 @@ public class ReactiveDynamoTest {
 
         db.createTable(testTableSchema());
         db.putItem(testTableItem());
+
+        db.createTable(testTable1Schema());
+        db.putItem(testTable1Item());
     }
 
     @AfterClass
@@ -54,7 +57,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(singletonList("testTable"));
+        subscriber.assertValue(Arrays.asList("testTable", "testTable1"));
     }
 
     @Test
@@ -62,8 +65,8 @@ public class ReactiveDynamoTest {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
         DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_HASH_KEY, "testing");
-        DynamoDbTable table = new DynamoDbTable(TEST_TABLE_NAME, hashKey);
-        Observable<Map<String, Object>> observable = reactiveDynamo.itemByHashKey(table);
+        DynamoDbTable table = new DynamoDbTable(TABLE_WITH_HASH_KEY, hashKey);
+        Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
 
         observable.subscribe(System.out::print);
         observable.subscribe(subscriber);
@@ -71,5 +74,22 @@ public class ReactiveDynamoTest {
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
         subscriber.assertValue(ImmutableMap.of("field1", "testing"));
+    }
+
+    @Test
+    public void testGetItemByCompositeKey() throws Exception {
+        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
+        TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
+        DynamoDbHashKey hashKey = new DynamoDbHashKey(TestData.TEST_TABLE_1_HASH_KEY, "testing");
+        DynamoDbHashKey rangeKey = new DynamoDbHashKey(TestData.TEST_TABLE_1_RANGE_KEY, "testing");
+        DynamoDbTable table = new DynamoDbTable(TestData.TEST_TABLE_1_NAME, hashKey, rangeKey);
+        Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
+
+        observable.subscribe(System.out::print);
+        observable.subscribe(subscriber);
+
+        subscriber.assertCompleted();
+        subscriber.assertNoErrors();
+        subscriber.assertValue(ImmutableMap.of("field1", "testing", "field2", "testing"));
     }
 }

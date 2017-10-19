@@ -27,7 +27,7 @@ class ReactiveDynamo {
                 .map(ListTablesResult::getTableNames);
     }
 
-    Observable<Map<String, Object>> itemByHashKey(DynamoDbTable table) {
+    Observable<Map<String, Object>> item(DynamoDbTable table) {
         return Observable.from(db.getItemAsync(from(table)))
                 .map(GetItemResult::getItem)
                 .map(InternalUtils::toSimpleMapValue);
