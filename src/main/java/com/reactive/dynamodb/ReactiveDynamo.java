@@ -1,3 +1,5 @@
+package com.reactive.dynamodb;
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.internal.InternalUtils;

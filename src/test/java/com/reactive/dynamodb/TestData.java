@@ -1,3 +1,5 @@
+package com.reactive.dynamodb;
+
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.google.common.collect.ImmutableMap;
 
