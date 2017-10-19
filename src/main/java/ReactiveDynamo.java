@@ -17,11 +17,14 @@ class ReactiveDynamo {
     private final AmazonDynamoDBAsync db;
 
     ReactiveDynamo(EndpointConfiguration endpointConfiguration) {
-        this.db = AmazonDynamoDBAsyncClientBuilder.standard().withEndpointConfiguration(endpointConfiguration).build();
+        this.db = AmazonDynamoDBAsyncClientBuilder.standard()
+                .withEndpointConfiguration(endpointConfiguration)
+                .build();
     }
 
     Observable<List<String>> tables() {
-        return Observable.from(db.listTablesAsync()).map(ListTablesResult::getTableNames);
+        return Observable.from(db.listTablesAsync())
+                .map(ListTablesResult::getTableNames);
     }
 
     Observable<Map<String, Object>> itemByHashKey(String tableName, String hashKeyName, String hashKeyValue) {
