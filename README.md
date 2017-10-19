@@ -1,4 +1,4 @@
-#### Reactive interface on top of AWS async dynamo-db client
+#### Reactive interface on top of AWS dynamo-db async client
 
 ##### Run tests
 `./gradlew clean build`
