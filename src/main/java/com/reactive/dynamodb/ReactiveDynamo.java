@@ -1,5 +1,6 @@
 package com.reactive.dynamodb;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.internal.InternalUtils;
@@ -16,9 +17,10 @@ import static com.reactive.dynamodb.GetItemRequestExtension.from;
 class ReactiveDynamo {
     private final AmazonDynamoDBAsync db;
 
-    ReactiveDynamo(EndpointConfiguration endpointConfiguration) {
+    ReactiveDynamo(AWSCredentialsProvider awsCredentialsProvider, EndpointConfiguration endpointConfiguration) {
         this.db = AmazonDynamoDBAsyncClientBuilder.standard()
                 .withEndpointConfiguration(endpointConfiguration)
+                .withCredentials(awsCredentialsProvider)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package com.reactive.dynamodb;
 
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.local.main.ServerRunner;
@@ -33,6 +34,7 @@ public class ReactiveDynamoTest {
 
         AmazonDynamoDB db = AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(config)
+                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
         db.createTable(testTable1Schema());
@@ -51,7 +53,7 @@ public class ReactiveDynamoTest {
 
     @Test
     public void testListTables() throws Exception {
-        Observable<List<String>> observable = new ReactiveDynamo(config).tables();
+        Observable<List<String>> observable = new ReactiveDynamo(new ProfileCredentialsProvider(), config).tables();
         TestSubscriber<List<String>> subscriber = new TestSubscriber<>();
 
         observable.subscribe(System.out::print);
@@ -64,7 +66,7 @@ public class ReactiveDynamoTest {
 
     @Test
     public void testGetItemByHashKey() throws Exception {
-        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
+        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(new ProfileCredentialsProvider(), config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
         DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_2_HASH_KEY, "testing");
         DynamoDbTable table = new DynamoDbTable(TEST_TABLE_2_NAME, hashKey);
@@ -80,7 +82,7 @@ public class ReactiveDynamoTest {
 
     @Test
     public void testGetItemByCompositeKey() throws Exception {
-        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
+        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(new ProfileCredentialsProvider(), config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
         DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_1_HASH_KEY, "testing");
         DynamoDbHashKey rangeKey = new DynamoDbHashKey(TEST_TABLE_1_RANGE_KEY, "testing");
@@ -97,7 +99,7 @@ public class ReactiveDynamoTest {
 
     @Test
     public void testAddItemByHashKey() {
-        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(config);
+        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(new ProfileCredentialsProvider(), config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
 
         ImmutableMap<String, Object> data = ImmutableMap.of("field1", "testing");
