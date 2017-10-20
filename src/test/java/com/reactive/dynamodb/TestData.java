@@ -27,10 +27,16 @@ public class TestData {
                 ImmutableMap.of(TEST_TABLE_2_HASH_KEY, new AttributeValue("testing")));
     }
 
-    public static PutItemRequest testTable1Item() {
+    public static PutItemRequest testTable1Item1() {
         return new PutItemRequest(TEST_TABLE_1_NAME,
                 ImmutableMap.of(TEST_TABLE_1_HASH_KEY, new AttributeValue("testing"),
-                        TEST_TABLE_1_RANGE_KEY, new AttributeValue("testing")));
+                        TEST_TABLE_1_RANGE_KEY, new AttributeValue("testing1")));
+    }
+
+    public static PutItemRequest testTable1Item2() {
+        return new PutItemRequest(TEST_TABLE_1_NAME,
+                ImmutableMap.of(TEST_TABLE_1_HASH_KEY, new AttributeValue("testing"),
+                        TEST_TABLE_1_RANGE_KEY, new AttributeValue("testing2")));
     }
 
     public static CreateTableRequest testTable1Schema() {

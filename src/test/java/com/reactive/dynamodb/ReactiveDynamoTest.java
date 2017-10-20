@@ -40,7 +40,8 @@ public class ReactiveDynamoTest {
                 .build();
 
         db.createTable(testTable1Schema());
-        db.putItem(testTable1Item());
+        db.putItem(testTable1Item1());
+        db.putItem(testTable1Item2());
 
         db.createTable(testTable2Schema());
         db.putItem(testTableItem());
@@ -87,7 +88,7 @@ public class ReactiveDynamoTest {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(fake, config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
         DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_1_HASH_KEY, "testing");
-        DynamoDbHashKey rangeKey = new DynamoDbHashKey(TEST_TABLE_1_RANGE_KEY, "testing");
+        DynamoDbHashKey rangeKey = new DynamoDbHashKey(TEST_TABLE_1_RANGE_KEY, "testing1");
         DynamoDbTable table = new DynamoDbTable(TEST_TABLE_1_NAME, hashKey, rangeKey);
         Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
 
@@ -96,7 +97,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(ImmutableMap.of("field1", "testing", "field2", "testing"));
+        subscriber.assertValue(ImmutableMap.of("field1", "testing", "field2", "testing1"));
     }
 
     @Test
