@@ -44,7 +44,7 @@ public class ReactiveDynamoTest {
         db.putItem(testTable1Item2());
 
         db.createTable(testTable2Schema());
-        db.putItem(testTableItem());
+        db.putItem(testTable2Item());
 
         db.createTable(testTable3Schema());
     }
@@ -71,7 +71,7 @@ public class ReactiveDynamoTest {
     public void testGetItemByHashKey() throws Exception {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(fake, config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
-        DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_2_HASH_KEY, "testing");
+        DynamoDbHashKey hashKey = new DynamoDbHashKey(HASH_KEY, "testing");
         DynamoDbTable table = new DynamoDbTable(TEST_TABLE_2_NAME, hashKey);
         Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
 
@@ -80,15 +80,15 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(ImmutableMap.of("field1", "testing"));
+        subscriber.assertValue(ImmutableMap.of(HASH_KEY, "testing"));
     }
 
     @Test
     public void testGetItemByCompositeKey() throws Exception {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(fake, config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
-        DynamoDbHashKey hashKey = new DynamoDbHashKey(TEST_TABLE_1_HASH_KEY, "testing");
-        DynamoDbHashKey rangeKey = new DynamoDbHashKey(TEST_TABLE_1_RANGE_KEY, "testing1");
+        DynamoDbHashKey hashKey = new DynamoDbHashKey(HASH_KEY, "testing");
+        DynamoDbHashKey rangeKey = new DynamoDbHashKey(RANGE_KEY, "testing1");
         DynamoDbTable table = new DynamoDbTable(TEST_TABLE_1_NAME, hashKey, rangeKey);
         Observable<Map<String, Object>> observable = reactiveDynamo.item(table);
 
@@ -97,7 +97,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(ImmutableMap.of("field1", "testing", "field2", "testing1"));
+        subscriber.assertValue(ImmutableMap.of(HASH_KEY, "testing", RANGE_KEY, "testing1"));
     }
 
     @Test
@@ -105,8 +105,8 @@ public class ReactiveDynamoTest {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(fake, config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
 
-        ImmutableMap<String, Object> data = ImmutableMap.of("field1", "testing");
-        Observable<Map<String, Object>> observable = reactiveDynamo.add(TestData.TEST_TABLE_3_NAME, data);
+        ImmutableMap<String, Object> data = ImmutableMap.of(HASH_KEY, "testing");
+        Observable<Map<String, Object>> observable = reactiveDynamo.add(TEST_TABLE_3_NAME, data);
         observable.subscribe(subscriber);
         observable.subscribe(System.out::println);
 
