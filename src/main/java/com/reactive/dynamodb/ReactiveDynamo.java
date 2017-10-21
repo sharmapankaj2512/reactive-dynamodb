@@ -41,11 +41,18 @@ class ReactiveDynamo {
     }
 
     Observable<List<Map<String, Object>>> items(DynamoDbTable table) {
-        QueryRequest queryRequest = new QueryRequest(table.getName()).withKeyConditions(table.toDynamoConditionMap());
-        return Observable.from(db.queryAsync(queryRequest))
+        Observable<QueryResult> observable = Observable.from(db.queryAsync(QueryRequestExtension.from(table)));
+        return observable.mergeWith(observable.flatMap((QueryResult r) -> items(table, r.getLastEvaluatedKey())))
                 .map(QueryResult::getItems)
                 .map(items -> items.stream()
                         .map(AwsInternalsExtension::toSimpleMapValue)
                         .collect(Collectors.toList()));
+    }
+
+    private Observable<QueryResult> items(DynamoDbTable table, Map<String, AttributeValue> lastEvaluatedKey) {
+        if (lastEvaluatedKey == null || lastEvaluatedKey.size() == 0) return Observable.empty();
+        QueryRequest queryRequest = QueryRequestExtension.from(table, lastEvaluatedKey);
+        Observable<QueryResult> observable = Observable.from(db.queryAsync(queryRequest));
+        return observable.mergeWith(observable.flatMap((QueryResult r) -> items(table, r.getLastEvaluatedKey())));
     }
 }
