@@ -54,7 +54,8 @@ class ReactiveDynamo {
     }
 
     private Observable<QueryResult> items(DynamoDbTable table, QueryRequest queryRequest) {
-        Observable<QueryResult> observable = Observable.from(db.queryAsync(queryRequest));
-        return observable.mergeWith(observable.flatMap((QueryResult r) -> items(table, r.getLastEvaluatedKey())));
+        Observable<QueryResult> head = Observable.from(db.queryAsync(queryRequest));
+        Observable<QueryResult> tail = head.flatMap((QueryResult r) -> items(table, r.getLastEvaluatedKey()));
+        return head.mergeWith(tail);
     }
 }
