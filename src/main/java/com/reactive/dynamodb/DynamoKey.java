@@ -29,5 +29,9 @@ public abstract class DynamoKey {
                 .withAttributeValueList(new AttributeValue().withS(value()));
         return ImmutableMap.of(name(), condition);
     }
+
+    public ImmutableMap<String, AttributeValue> toDynamoKeyMap() {
+        return ImmutableMap.of(name(), new AttributeValue(value()));
+    }
 }
 

@@ -21,18 +21,19 @@ public class DynamoDbTable {
         this.rangeKey = rangeKey;
     }
 
-    public ImmutableMap<String, AttributeValue> toDynamoKeyMap() {
-        if (rangeKey == null) return ImmutableMap.of(hashKey.name(), new AttributeValue(hashKey.value()));
-        return ImmutableMap.of(hashKey.name(), new AttributeValue(hashKey.value()),
-                rangeKey.name(), new AttributeValue(rangeKey.value()));
-    }
-
     public String getName() {
         return name;
     }
 
-    public Map<String, Condition> conditions() {
-        ImmutableMap.Builder<String, Condition> builder = ImmutableMap.<String, Condition>builder();
+    public ImmutableMap<String, AttributeValue> toDynamoKeyMap() {
+        ImmutableMap.Builder<String, AttributeValue> builder = ImmutableMap.builder();
+        if (hashKey != null) builder.putAll(hashKey.toDynamoKeyMap());
+        if (rangeKey != null) builder.putAll(rangeKey.toDynamoKeyMap());
+        return builder.build();
+    }
+
+    public Map<String, Condition> toDynamoConditionMap() {
+        ImmutableMap.Builder<String, Condition> builder = ImmutableMap.builder();
         if (hashKey != null) builder.putAll(hashKey.toConditionMap());
         if (rangeKey != null) builder.putAll(rangeKey.toConditionMap());
         return builder.build();

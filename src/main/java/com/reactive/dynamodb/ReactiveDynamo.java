@@ -41,7 +41,7 @@ class ReactiveDynamo {
     }
 
     Observable<List<Map<String, Object>>> items(DynamoDbTable table) {
-        QueryRequest queryRequest = new QueryRequest(table.getName()).withKeyConditions(table.conditions());
+        QueryRequest queryRequest = new QueryRequest(table.getName()).withKeyConditions(table.toDynamoConditionMap());
         return Observable.from(db.queryAsync(queryRequest))
                 .map(QueryResult::getItems)
                 .map(items -> items.stream()
