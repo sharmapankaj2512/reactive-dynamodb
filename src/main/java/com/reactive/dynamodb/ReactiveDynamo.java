@@ -40,7 +40,7 @@ class ReactiveDynamo {
                 .map(AwsInternalsExtension::toSimpleMapValue);
     }
 
-    Observable<List<Map<String, Object>>> items(DynamoDbTable table) {
+    Observable<List<Map<String, Object>>> items(DynamoDbTable table) { //TODO: Stress test
         return items(table, QueryRequestFactory.make(table))
                 .map(QueryResult::getItems)
                 .map(items -> items.stream()
