@@ -7,30 +7,30 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
-public abstract class DynamoKey {
+abstract class DynamoKey {
     private final String name;
     private final String value;
 
-    public DynamoKey(String name, String value) {
+    DynamoKey(String name, String value) {
         this.name = name;
         this.value = value;
     }
 
-    public String name() {
+    private String name() {
         return name;
     }
 
-    public String value() {
+    private String value() {
         return value;
     }
 
-    public Map<String, Condition> toConditionMap() {
+    Map<String, Condition> toConditionMap() {
         Condition condition = new Condition().withComparisonOperator(ComparisonOperator.EQ.toString())
                 .withAttributeValueList(new AttributeValue().withS(value()));
         return ImmutableMap.of(name(), condition);
     }
 
-    public ImmutableMap<String, AttributeValue> toDynamoKeyMap() {
+    ImmutableMap<String, AttributeValue> toDynamoKeyMap() {
         return ImmutableMap.of(name(), new AttributeValue(value()));
     }
 }
