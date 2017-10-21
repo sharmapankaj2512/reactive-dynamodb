@@ -3,13 +3,12 @@ package com.reactive.dynamodb;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
-import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import com.amazonaws.services.dynamodbv2.model.*;
 import rx.Observable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import static com.reactive.dynamodb.GetItemRequestExtension.from;
@@ -39,5 +38,14 @@ class ReactiveDynamo {
         return Observable.from(db.putItemAsync(PutItemRequestExtension.from(tableName, data)))
                 .map(PutItemResult::getAttributes)
                 .map(AwsInternalsExtension::toSimpleMapValue);
+    }
+
+    Observable<List<Map<String, Object>>> items(DynamoDbTable table) {
+        QueryRequest queryRequest = new QueryRequest(table.getName()).withKeyConditions(table.conditions());
+        return Observable.from(db.queryAsync(queryRequest))
+                .map(QueryResult::getItems)
+                .map(items -> items.stream()
+                        .map(AwsInternalsExtension::toSimpleMapValue)
+                        .collect(Collectors.toList()));
     }
 }

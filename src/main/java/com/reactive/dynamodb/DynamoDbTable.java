@@ -1,7 +1,10 @@
 package com.reactive.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 public class DynamoDbTable {
     private final String name;
@@ -26,5 +29,12 @@ public class DynamoDbTable {
 
     public String getName() {
         return name;
+    }
+
+    public Map<String, Condition> conditions() {
+        ImmutableMap.Builder<String, Condition> builder = ImmutableMap.<String, Condition>builder();
+        if (hashKey != null) builder.putAll(hashKey.toConditionMap());
+        if (rangeKey != null) builder.putAll(rangeKey.toConditionMap());
+        return builder.build();
     }
 }

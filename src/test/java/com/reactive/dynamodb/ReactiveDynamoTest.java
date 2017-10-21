@@ -13,12 +13,13 @@ import org.junit.Test;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import static com.google.common.collect.ImmutableMap.of;
 import static com.reactive.dynamodb.TestData.*;
+import static java.util.Arrays.asList;
 
 public class ReactiveDynamoTest {
     private static final String region = "foobar";
@@ -64,7 +65,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(Arrays.asList("testTable1", "testTable2", "testTable3"));
+        subscriber.assertValue(asList("testTable1", "testTable2", "testTable3"));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(ImmutableMap.of(HASH_KEY, "testing"));
+        subscriber.assertValue(of(HASH_KEY, "testing"));
     }
 
     @Test
@@ -97,7 +98,7 @@ public class ReactiveDynamoTest {
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(ImmutableMap.of(HASH_KEY, "testing", RANGE_KEY, "testing1"));
+        subscriber.assertValue(of(HASH_KEY, "testing", RANGE_KEY, "testing1"));
     }
 
     @Test
@@ -105,13 +106,31 @@ public class ReactiveDynamoTest {
         ReactiveDynamo reactiveDynamo = new ReactiveDynamo(fake, config);
         TestSubscriber<Map<String, Object>> subscriber = new TestSubscriber<>();
 
-        ImmutableMap<String, Object> data = ImmutableMap.of(HASH_KEY, "testing");
+        ImmutableMap<String, Object> data = of(HASH_KEY, "testing");
         Observable<Map<String, Object>> observable = reactiveDynamo.add(TEST_TABLE_3_NAME, data);
         observable.subscribe(subscriber);
         observable.subscribe(System.out::println);
 
         subscriber.assertCompleted();
         subscriber.assertNoErrors();
-        subscriber.assertValue(ImmutableMap.of());
+        subscriber.assertValue(of());
+    }
+
+    @Test
+    public void testGetItemsByHashKey() throws Exception {
+        ReactiveDynamo reactiveDynamo = new ReactiveDynamo(fake, config);
+        TestSubscriber<List<Map<String, Object>>> subscriber = new TestSubscriber<>();
+        DynamoDbHashKey hashKey = new DynamoDbHashKey(HASH_KEY, "testing");
+        DynamoDbTable table = new DynamoDbTable(TEST_TABLE_1_NAME, hashKey);
+        Observable<List<Map<String, Object>>> observable = reactiveDynamo.items(table);
+
+        observable.subscribe(System.out::print);
+        observable.subscribe(subscriber);
+
+        subscriber.assertCompleted();
+        subscriber.assertNoErrors();
+        subscriber.assertValue(
+                asList(of(HASH_KEY, "testing", RANGE_KEY, "testing1"),
+                        of(HASH_KEY, "testing", RANGE_KEY, "testing2")));
     }
 }
