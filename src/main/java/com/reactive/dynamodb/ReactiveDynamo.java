@@ -49,8 +49,8 @@ class ReactiveDynamo {
     }
 
     private Observable<QueryResult> items(DynamoDbTable table, Map<String, AttributeValue> lastEvaluatedKey) {
-        if (lastEvaluatedKey == null) return Observable.empty();
-        return items(table, QueryRequestFactory.make(table, lastEvaluatedKey));
+        return lastEvaluatedKey == null ? Observable.empty()
+                : items(table, QueryRequestFactory.make(table, lastEvaluatedKey));
     }
 
     private Observable<QueryResult> items(DynamoDbTable table, QueryRequest queryRequest) {
