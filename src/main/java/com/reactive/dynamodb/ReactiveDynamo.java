@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import static com.reactive.dynamodb.GetItemRequestExtension.from;
+import static com.reactive.dynamodb.GetItemRequestFactory.make;
 
 class ReactiveDynamo {
     private final AmazonDynamoDBAsync db;
@@ -29,19 +29,19 @@ class ReactiveDynamo {
     }
 
     Observable<Map<String, Object>> item(DynamoDbTable table) {
-        return Observable.from(db.getItemAsync(from(table)))
+        return Observable.from(db.getItemAsync(make(table)))
                 .map(GetItemResult::getItem)
                 .map(AwsInternalsExtension::toSimpleMapValue);
     }
 
     Observable<Map<String, Object>> add(String tableName, Map<String, Object> data) {
-        return Observable.from(db.putItemAsync(PutItemRequestExtension.from(tableName, data)))
+        return Observable.from(db.putItemAsync(PutItemRequestFactory.make(tableName, data)))
                 .map(PutItemResult::getAttributes)
                 .map(AwsInternalsExtension::toSimpleMapValue);
     }
 
     Observable<List<Map<String, Object>>> items(DynamoDbTable table) {
-        Observable<QueryResult> observable = Observable.from(db.queryAsync(QueryRequestExtension.from(table)));
+        Observable<QueryResult> observable = Observable.from(db.queryAsync(QueryRequestFactory.make(table)));
         return observable.mergeWith(observable.flatMap((QueryResult r) -> items(table, r.getLastEvaluatedKey())))
                 .map(QueryResult::getItems)
                 .map(items -> items.stream()
@@ -51,7 +51,7 @@ class ReactiveDynamo {
 
     private Observable<QueryResult> items(DynamoDbTable table, Map<String, AttributeValue> lastEvaluatedKey) {
         if (lastEvaluatedKey == null || lastEvaluatedKey.size() == 0) return Observable.empty();
-        QueryRequest queryRequest = QueryRequestExtension.from(table, lastEvaluatedKey);
+        QueryRequest queryRequest = QueryRequestFactory.make(table, lastEvaluatedKey);
         Observable<QueryResult> observable = Observable.from(db.queryAsync(queryRequest));
         return observable.mergeWith(observable.flatMap((QueryResult r) -> items(table, r.getLastEvaluatedKey())));
     }
